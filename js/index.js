@@ -514,26 +514,188 @@
 //   );
 
 // console.log(getSums([1, 2, 3, 4, 5]));
-class StringBuilder {
-  constructor(initialValue) {
-    this.value = initialValue;
-  }
-  getValue() {
-    return this.value;
-  }
-  padEnd(str) {
-    return this.value + str;
-  }
-  padStart(str) {}
-  padBoth(str) {}
+// class StringBuilder {
+//   constructor(initialValue) {
+//     this.value = initialValue;
+//   }
+//   getValue() {
+//     return this.value;
+//   }
+//   padEnd(str) {
+//     return this.value + str;
+//   }
+//   padStart(str) {}
+//   padBoth(str) {}
+// }
+
+// // Change code above this line
+// const builder = new StringBuilder(".");
+// console.log(builder.getValue()); // "."
+// builder.padStart("^");
+// console.log(builder.getValue()); // "^."
+// builder.padEnd("^");
+// console.log(builder.getValue()); // "^.^"
+// builder.padBoth("=");
+// console.log(builder.getValue()); // "=^.^="
+
+// import NewsApiService from "./newjs";
+// console.log(NewsApiService);
+
+// const form = document.querySelector("form");
+// const btnMore = document.querySelector("js-btn");
+
+// const newsApiService = NewsApiService();
+
+// form.addEventListener("submit", onSearch);
+// btnMore.addEventListener("click", onLoadMore);
+// console.log(form);
+
+// function onSearch(e) {
+//   e.preventDefault();
+//   const a = e.currentTarget.elements.query.value;
+
+//   const options = {
+//     headers: {
+//       Authorization: "dd6409698a7c48b38fdfcffb0234ebfc",
+//     },
+//   };
+
+//   fetch(
+//     `https://newsapi.org/v2/everything?q=${a}&language=en&pageSize=10&page=1`,
+//     options
+//   )
+//     .then((r) => r.json())
+//     .then(console.log);
+// }
+
+// function onLoadMore() {
+//   newsApiService.fetchArticles();
+// }
+
+// const list = document.querySelector(".js-result");
+// const btnMore = document.querySelector(".js-btn");
+// btnMore.addEventListener("click", onLoadMore);
+// let page = 1;
+
+// function lordOfTheRingsApi(page = 1) {
+//   const BASE_URL = "https://the-one-api.dev/v2/character";
+//   const KEY = "POo_gsAuILisM2c_tQMa";
+//   const options = {
+//     headers: {
+//       method: "GET",
+//       Authorization: `Bearer ${KEY}`,
+//     },
+//   };
+//   return fetch(`${BASE_URL}?limit=100&page=${page}`, options).then((resp) => {
+//     if (!resp.ok) {
+//       throw new Error(resp.statusText);
+//     }
+//     return resp.json();
+//   });
+// }
+
+// lordOfTheRingsApi()
+//   .then((data) => {
+//     createMarkup(data.docs);
+//     console.log(data);
+//     btnMore.hidden = false;
+//   })
+//   .catch((err) => console.log(err));
+
+// function createMarkup(arr) {
+//   const markup = arr
+//     .map(
+//       ({ name, race }) => `<li>
+//         <h2>${name}</h2>
+//         <h3>${race}</h3>
+//       </li>`
+//     )
+//     .join("");
+//   list.innerHTML = markup;
+// }
+
+// function onLoadMore() {
+//   page += 1;
+//   lordOfTheRingsApi(page)
+//     .then((data) => {
+//       createMarkup(data.docs);
+//       if (data.page === data.pages) {
+//         btnMore.hidden = true;
+//       }
+//     })
+//     .catch((err) => console.log(err));
+// }
+
+//////////////////////////////////////////// SCROLL
+// let test = 1;
+// document.addEventListener("scroll", onScroll);
+// function onScroll() {
+//   test += 1;
+//   console.log(test);
+// }
+
+const list = document.querySelector(".js-result");
+const guard = document.querySelector(".js-guard");
+let page = 1;
+const options = {
+  root: null,
+  rootMargin: "1px",
+  threshold: 0,
+};
+
+function onLoad(entries, observer) {
+  console.log("hello");
+  entries.forEach((element) => {
+    console.log(element);
+    if (element.isIntersecting) {
+      page += 1;
+      lordOfTheRingsApi(page)
+        .then((data) => {
+          createMarkup(data.docs);
+          if (data.page === data.pages) {
+            observer.unobserve(guard);
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  });
 }
 
-// Change code above this line
-const builder = new StringBuilder(".");
-console.log(builder.getValue()); // "."
-builder.padStart("^");
-console.log(builder.getValue()); // "^."
-builder.padEnd("^");
-console.log(builder.getValue()); // "^.^"
-builder.padBoth("=");
-console.log(builder.getValue()); // "=^.^="
+let observer = new IntersectionObserver(onLoad, options);
+
+function lordOfTheRingsApi(page = 1) {
+  const BASE_URL = "https://the-one-api.dev/v2/character";
+  const KEY = "POo_gsAuILisM2c_tQMa";
+  const options = {
+    headers: {
+      method: "GET",
+      Authorization: `Bearer ${KEY}`,
+    },
+  };
+  return fetch(`${BASE_URL}?limit=100&page=${page}`, options).then((resp) => {
+    if (!resp.ok) {
+      throw new Error(resp.statusText);
+    }
+    return resp.json();
+  });
+}
+
+lordOfTheRingsApi()
+  .then((data) => {
+    createMarkup(data.docs);
+    console.log(data);
+    observer.observe(guard);
+  })
+  .catch((err) => console.log(err));
+
+function createMarkup(arr) {
+  const markup = arr
+    .map(
+      ({ name, race }) => `<li>
+        <h2>${name}</h2>
+        <h3>${race}</h3>
+      </li>`
+    )
+    .join("");
+  list.innerHTML = markup;
+}
